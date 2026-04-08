@@ -1,0 +1,204 @@
+IMPLEMENTASI TRIGGER & VIEW UNTUK MANAJEMEN DATA TOKO BUNGA
+
+
+1. BEFORE INSERT → Mengubah data sebelum masuk.
+
+- Fungsi:
+Mengubah nama_bunga menjadi huruf besar sebelum disimpan.
+
+-- Contoh:
+INSERT INTO toko_bunga VALUES ('Rina','melati',20000,7);
+
+--> Hasil di tabel toko_bunga:
++----------------+------------+-------------+--------+
+| nama_pelanggan | nama_bunga | harga_bunga | jumlah |
++----------------+------------+-------------+--------+
+| Rina           | MELATI     | 20000       | 7      |
++----------------+------------+-------------+--------+
+
+-- Artinya: data otomatis diubah jadi huruf besar
+
+ 2. AFTER INSERT → Menyimpan log setelah data masuk.
+
+- Fungsi:
+Mencatat data yang baru ditambahkan.
+
+--> Hasil di tabel log_toko_bunga:
++----+--------+----------------+------------+---------------------+
+| id | aksi   | nama_pelanggan | nama_bunga | waktu               |
++----+--------+----------------+------------+---------------------+
+| 1  | INSERT | Rina           | MELATI     | 2026-04-08 ...      |
++----+--------+----------------+------------+---------------------+
+
+-- Artinya: setiap insert langsung tercatat.
+
+
+3. BEFORE UPDATE → Mengubah data sebelum update.
+
+-- Contoh:
+UPDATE toko_bunga SET jumlah=99 WHERE nama_pelanggan='Kemala';
+
+--> Hasil di toko_bunga:
++----------------+------------+-------------+--------+
+| nama_pelanggan | nama_bunga | harga_bunga | jumlah |
++----------------+------------+-------------+--------+
+| Kemala         | TULIP      | 50000       | 99     |
++----------------+------------+-------------+--------+
+
+- Nama bunga otomatis jadi huruf besar.
+
+
+ 4. AFTER UPDATE → Mencatat perubahan.
+
+--> Hasil di log_toko_bunga:
++----+--------+----------------+------------+---------------------+
+| id | aksi   | nama_pelanggan | nama_bunga | waktu               |
++----+--------+----------------+------------+---------------------+
+| 2  | UPDATE | Kemala         | TULIP      | 2026-04-08 ...      |
++----+--------+----------------+------------+---------------------+
+
+-- Artinya: update tercatat.
+
+ 5. BEFORE DELETE → Catat sebelum dihapus.
+
+-- Contoh:
+DELETE FROM toko_bunga WHERE nama_pelanggan='Bilqis';
+
+--> Hasil di log_toko_bunga:
++----+--------------+----------------+------------+---------------------+
+| id | aksi         | nama_pelanggan | nama_bunga | waktu               |
++----+--------------+----------------+------------+---------------------+
+| 3  | AKAN DIHAPUS | Bilqis         | Lavender   | 2026-04-08 ...      |
++----+--------------+----------------+------------+---------------------+
+
+-->> Data dicatat sebelum hilang.
+
+ 6. AFTER DELETE → Catat setelah dihapus.
+
+--> Hasil di log_toko_bunga:
++----+--------+----------------+------------+---------------------+
+| id | aksi   | nama_pelanggan | nama_bunga | waktu               |
++----+--------+----------------+------------+---------------------+
+| 4  | DELETE | Bilqis         | Lavender   | 2026-04-08 ...      |
++----+--------+----------------+------------+---------------------+
+
+ --> Kondisi tabel toko_bunga setelah DELETE:
++----------------+------------+-------------+--------+
+| nama_pelanggan | nama_bunga | harga_bunga | jumlah |
++----------------+------------+-------------+--------+
+| Kemala         | TULIP      | 50000       | 99     |
+| Arzizah        | Matahari   | 70000       | 3      |
+| Rina           | MELATI     | 20000       | 7      |
++----------------+------------+-------------+--------+
+
+-->> Data Bilqis sudah hilang dari tabel Utama.
+-->> Tapi tetap ada di log.
+
+<--> KESIMPULAN TRIGGER 
+
+BEFORE → mengubah data sebelum proses.
+AFTER → mencatat aktivitas setelah proses.
+ 
+
+1. VIEW DATA BUNGA → Menampilkan data tertentu.
+
+-- Query:
+
+CREATE VIEW view_data_bunga AS
+SELECT nama_pelanggan, nama_bunga, harga_bunga
+FROM toko_bunga;
+
+-- Fungsi:
+
+Menampilkan hanya kolom tertentu:
+
+- nama_pelanggan
+- nama_bunga
+- harga_bunga
+
+Jadi tidak menampilkan kolom jumlah.
+
+--> Hasil:
+SELECT * FROM view_data_bunga;
++----------------+------------+-------------+
+| nama_pelanggan | nama_bunga | harga_bunga |
++----------------+------------+-------------+
+| Kemala         | TULIP      | 50000       |
+| Arzizah        | Matahari   | 70000       |
+| Rina           | MELATI     | 20000       |
++----------------+------------+-------------+
+
+-- Artinya:
+View ini digunakan untuk menyederhanakan tampilan data.
+
+
+ 2. VIEW BUNGA MAHAL → Filter harga mahal
+-- Query:
+CREATE VIEW view_bunga_mahal AS
+SELECT *
+FROM toko_bunga
+WHERE harga_bunga > 50000;
+
+-- Fungsi:
+Menampilkan hanya bunga dengan harga lebih dari 50.000
+
+--> Hasil:
+SELECT * FROM view_bunga_mahal;
++----------------+------------+-------------+--------+
+| nama_pelanggan | nama_bunga | harga_bunga | jumlah |
++----------------+------------+-------------+--------+
+| Arzizah        | Matahari   | 70000       | 3      |
++----------------+------------+-------------+--------+
+
+-- Artinya:
+Hanya data dengan harga mahal yang ditampilkan.
+
+
+3. VIEW BUNGA MURAH → Filter harga murah
+- Query:
+CREATE VIEW view_bunga_murah AS
+SELECT *
+FROM toko_bunga
+WHERE harga_bunga < 30000;
+-- Fungsi:
+
+Menampilkan bunga dengan harga kurang dari 30.000
+
+--> Hasil:
+SELECT * FROM view_bunga_murah;
++----------------+------------+-------------+--------+
+| nama_pelanggan | nama_bunga | harga_bunga | jumlah |
++----------------+------------+-------------+--------+
+| Rina           | MELATI     | 20000       | 7      |
++----------------+------------+-------------+--------+
+
+-- Artinya:
+Hanya data dengan harga murah yang ditampilkan.
+
+KESIMPULAN VIEW PERTAMA:
+
+- View tidak menyimpan data baru.
+- View hanya mengambil dari tabel toko_bunga.
+- Jika data di tabel berubah → view ikut berubah.
+
+-- Contoh:
+Kalau harga berubah → otomatis berubah di view juga.
+
+
+KESIMPULAN VIEW KEDUA:
+
+- View yang dibuat berfungsi untuk:
+
+- Menyederhanakan query (tidak perlu SELECT ulang)
+- Menampilkan data sesuai kebutuhan:
+- Semua data penting → view_data_bunga
+- Data mahal → view_bunga_mahal
+- Data murah → view_bunga_murah
+
+KESIMPULAN VIEW AKHIR :
+
+View digunakan untuk mempermudah dalam melihat data tanpa harus menulis query berulang, serta dapat digunakan untuk memfilter data sesuai kebutuhan seperti data bunga mahal dan murah.
+
+
+
+
